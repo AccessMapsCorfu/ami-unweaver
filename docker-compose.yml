@@ -1,0 +1,28 @@
+version: "3.8"
+
+x-router-config: &router-config
+  env_file: accessmap-incremental.env
+  build: ./dockerfiles/unweaver
+
+services:
+  router:
+    <<: *router-config
+    command: poetry run unweaver serve /data -h 0.0.0.0 -p 5656
+    restart: unless-stopped
+    stop_signal: SIGINT
+    ports:
+      - 5656:5656
+    volumes:
+      - ./build/router:/data:rw
+
+  build_router:
+    <<: *router-config
+    command: bash -c "cp -r /inputconfig/* /data && cp -r /inputdata/layers /data/ && poetry run unweaver build /data --changes-sign incline"
+    # Makes progress bar update in the terminal
+    tty: true
+    volumes:
+      - ./config/unweaver:/inputconfig:rw
+      - ./output/transportation-tasks.geojson:/inputdata/layers/transportation.geojson:ro
+      - ./build/router:/data:rw
+    profiles:
+      - build
