@@ -3,6 +3,6 @@ __pycache__
 *.pyc
 
 # App stuff
-accessmap-incremental.env
-output
-build
+./accessmap-incremental.env
+./output
+./build
